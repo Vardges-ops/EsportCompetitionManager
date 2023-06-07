@@ -70,4 +70,17 @@ class TournamentPlace(Base):
 
 
 if __name__ == "__main__":
+    from datetime import datetime
     Base.metadata.create_all(engine)
+    gt = GameType(type_name="Shooter", platform="PC")
+    gm = Game(name="CS GO", type_id=gt.Id)
+    p1 = Player(
+        name="John", surname="Doe", nickname="SuperPlayer00",
+        rating=152, clan="Best-Players", email="JohnDoe@mail.com"
+    )
+    t1 = Tournament(name='CS championship', start=datetime(year=2023, month=8, day=12), game_id=gm.Id)
+    with Session(bind=engine) as session:
+        session.add(gt)
+        session.add(gm)
+        session.add(t1)
+        session.commit()
