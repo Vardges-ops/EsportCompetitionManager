@@ -1,3 +1,5 @@
+from typing import Optional
+
 from DBModels import *
 
 
@@ -56,4 +58,25 @@ class GameInterface:
 
 
 class TournamentInterface:
-    pass
+    def __init__(self,
+                 name: str,
+                 start: Optional[datetime] = None,
+                 end: Optional[datetime] = None,
+                 game_id: Optional[int] = None
+                 ):
+        self.name = name
+        self.start = start
+        self.end = end
+        self.game_id = game_id
+
+    def update_name(self, new_name: str):
+        self.name = new_name
+
+    def update_game_start(self, start: datetime):
+        self.start = start
+
+    def update_game_end(self, end: datetime):
+        self.end = end
+
+    def set_game_id(self, game_id: int):
+        self.game_id = game_id
