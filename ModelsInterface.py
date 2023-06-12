@@ -80,3 +80,19 @@ class TournamentInterface:
 
     def set_game_id(self, game_id: int):
         self.game_id = game_id
+
+
+class Player:
+    def __init__(self,
+                 name: Optional[str],
+                 surname: Optional[str],
+                 nickname: Optional[str],
+                 rating: Optional[str],
+                 clan: Optional[str],
+                 email: Optional[str]):
+        self.name = name
+        self.surname = surname
+        self.nickname = nickname
+        self.rating = rating
+        self.clan = clan
+        self.email = email
