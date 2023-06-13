@@ -38,7 +38,7 @@ class GameInterface:
 
     def get_game_by_name(self, game_name: str):
         with Session(bind=engine) as session:
-            self.game_match = session.query(Game).filter(Game.name == game_name).one_or_none()
+            self.game_match = session.query(Game).filter(Game.name == game_name).first()
 
     def get_all_games(self):
         with Session(bind=engine) as session:
@@ -69,22 +69,6 @@ class TournamentType:
         self.end = end
         self.game_id = game_id
 
-    def update_name(self, new_name: str):
-        self.name = new_name
-        return self
-
-    def update_game_start(self, start: datetime):
-        self.start = start
-        return self
-
-    def update_game_end(self, end: datetime):
-        self.end = end
-        return self
-
-    def set_game_id(self, game_id: int):
-        self.game_id = game_id
-        return self
-
     def insert_tournament(self):
         if all(self.__dict__.values()):
             with Session(bind=engine) as session:
@@ -100,7 +84,7 @@ class TournamentFinder:
 
     def get_tournament_by_name(self, name: str):
         with Session(bind=engine) as session:
-            self.obj_holder = session.query(Tournament).filter(Tournament.name == name)
+            self.obj_holder = session.query(Tournament).filter(Tournament.name == name).first()
 
     def get_tournament_by_id(self, tourn_id: int):
         with Session(bind=engine) as session:
@@ -108,28 +92,28 @@ class TournamentFinder:
 
     def get_tournament_by_game_id(self, game_id: int):
         with Session(bind=engine) as session:
-            self.obj_holder = session.query(Tournament).filter(Tournament.game_id == game_id)
+            self.obj_holder = session.query(Tournament).filter(Tournament.game_id == game_id).first()
 
     @staticmethod
     def get_upcoming_tournaments():
         now = datetime.now()
         with Session(bind=engine) as session:
             print("Tournament upcoming objects")
-            return session.query(Tournament).filter(Tournament.start < now)
+            return session.query(Tournament).filter(Tournament.start < now).all()
 
     @staticmethod
     def get_passed_tournaments():
         now = datetime.now()
         with Session(bind=engine) as session:
             print("Tournament passed objects")
-            return session.query(Tournament).filter(Tournament.end > now)
+            return session.query(Tournament).filter(Tournament.end > now).all()
 
     @staticmethod
     def get_ongoing_tournaments():
         now = datetime.now()
         with Session(bind=engine) as session:
             print("Tournament ongoing objects")
-            return session.query(Tournament).filter(Tournament.start > now, Tournament.end < now)
+            return session.query(Tournament).filter(Tournament.start > now, Tournament.end < now).all()
 
 
 class TournamentUpdater:
@@ -148,7 +132,7 @@ class TournamentDeleter:
             session.query(Tournament).get(tourn_id).delete()
 
 
-class Player:
+class PlayerType:
     def __init__(self,
                  name: Optional[str],
                  surname: Optional[str],
@@ -162,6 +146,28 @@ class Player:
         self.rating = rating
         self.clan = clan
         self.email = email
+
+    def insert_player(self):
+        with Session(bind=engine) as session:
+            session.add(Player(**self.__dict__))
+
+
+class PlayerFinder:
+
+    def __init__(self):
+        self.obj_holder = None
+
+    def find_player_by_id(self, player_id: int):
+        with Session(bind=engine) as session:
+            session.query(Player).get(player_id)
+
+    def find_player_by_email(self, email: str):
+        with Session(bind=engine) as session:
+            self.obj_holder = session.query(Player).filter(Player.email == email).first()
+
+    def find_player_by_equal_higher_rank(self, rank: float):
+        with Session(bind=engine) as session:
+            return session.query(Player).filter(Player.rating >= rank).all()
 
 
 class TournamentPlace:
