@@ -57,7 +57,7 @@ class GameInterface:
             self.game_match.update({attr_name: new_attr_id})
 
 
-class TournamentInterface:
+class TournamentType:
     def __init__(self,
                  name: str,
                  start: Optional[datetime] = None,
@@ -81,6 +81,38 @@ class TournamentInterface:
     def set_game_id(self, game_id: int):
         self.game_id = game_id
 
+    def insert_tournament(self):
+        if all(self.__dict__.values()):
+            with Session(bind=engine) as session:
+                session.add(Tournament(*self.__dict__))
+        else:
+            print("TournamentType object has None values")
+
+
+class TournamentInterface(TournamentType):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.db_obj = None
+
+    def get_tournament_by_name(self, name: str):
+        with Session(bind=engine) as session:
+            self.db_obj = session.query(Tournament).filter(Tournament.name == name)
+
+    def get_tournament_by_id(self, tourn_id: int):
+        with Session(bind=engine) as session:
+            self.db_obj = session.query(Tournament).get(tourn_id)
+
+    def get_tournament_by_game_id(self, game_id: int):
+        with Session(bind=engine) as session:
+            self.db_obj = session.query(Tournament).filter(Tournament.game_id == game_id)
+
+    def get_upcoming_tournaments(self):
+        pass
+
+    def get_passed_tournaments(self):
+        pass
+
 
 class Player:
     def __init__(self,
@@ -96,3 +128,7 @@ class Player:
         self.rating = rating
         self.clan = clan
         self.email = email
+
+
+class TournamentPlace:
+    pass
