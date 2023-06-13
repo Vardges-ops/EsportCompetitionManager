@@ -165,7 +165,8 @@ class PlayerFinder:
         with Session(bind=engine) as session:
             self.obj_holder = session.query(Player).filter(Player.email == email).first()
 
-    def find_player_by_equal_higher_rank(self, rank: float):
+    @staticmethod
+    def find_players_by_equal_higher_rank(rank: float):
         with Session(bind=engine) as session:
             return session.query(Player).filter(Player.rating >= rank).all()
 
