@@ -71,15 +71,19 @@ class TournamentType:
 
     def update_name(self, new_name: str):
         self.name = new_name
+        return self
 
     def update_game_start(self, start: datetime):
         self.start = start
+        return self
 
     def update_game_end(self, end: datetime):
         self.end = end
+        return self
 
     def set_game_id(self, game_id: int):
         self.game_id = game_id
+        return self
 
     def insert_tournament(self):
         if all(self.__dict__.values()):
@@ -89,29 +93,59 @@ class TournamentType:
             print("TournamentType object has None values")
 
 
-class TournamentInterface(TournamentType):
+class TournamentFinder:
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.db_obj = None
+    def __init__(self):
+        self.obj_holder = None
 
     def get_tournament_by_name(self, name: str):
         with Session(bind=engine) as session:
-            self.db_obj = session.query(Tournament).filter(Tournament.name == name)
+            self.obj_holder = session.query(Tournament).filter(Tournament.name == name)
 
     def get_tournament_by_id(self, tourn_id: int):
         with Session(bind=engine) as session:
-            self.db_obj = session.query(Tournament).get(tourn_id)
+            self.obj_holder = session.query(Tournament).get(tourn_id)
 
     def get_tournament_by_game_id(self, game_id: int):
         with Session(bind=engine) as session:
-            self.db_obj = session.query(Tournament).filter(Tournament.game_id == game_id)
+            self.obj_holder = session.query(Tournament).filter(Tournament.game_id == game_id)
 
-    def get_upcoming_tournaments(self):
-        pass
+    @staticmethod
+    def get_upcoming_tournaments():
+        now = datetime.now()
+        with Session(bind=engine) as session:
+            print("Tournament upcoming objects")
+            return session.query(Tournament).filter(Tournament.start < now)
 
-    def get_passed_tournaments(self):
-        pass
+    @staticmethod
+    def get_passed_tournaments():
+        now = datetime.now()
+        with Session(bind=engine) as session:
+            print("Tournament passed objects")
+            return session.query(Tournament).filter(Tournament.end > now)
+
+    @staticmethod
+    def get_ongoing_tournaments():
+        now = datetime.now()
+        with Session(bind=engine) as session:
+            print("Tournament ongoing objects")
+            return session.query(Tournament).filter(Tournament.start > now, Tournament.end < now)
+
+
+class TournamentUpdater:
+
+    @staticmethod
+    def update_tournament_attribute(tourn_id, **kwargs):
+        with Session(bind=engine) as session:
+            session.query(Tournament).get(tourn_id).update(kwargs)
+
+
+class TournamentDeleter:
+
+    @staticmethod
+    def delete_tournament_by_id(tourn_id):
+        with Session(bind=engine) as session:
+            session.query(Tournament).get(tourn_id).delete()
 
 
 class Player:
