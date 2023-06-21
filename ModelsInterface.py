@@ -1,5 +1,5 @@
-from typing import Optional
-
+from typing import Optional, List
+from datetime import datetime
 from DBModels import *
 
 
@@ -172,4 +172,16 @@ class PlayerFinder:
 
 
 class TournamentPlace:
-    pass
+
+    def give_tournament_players(self, tournament_id: int) -> List[Player]:
+        with Session(bind=engine) as session:
+            tourn_objs = session.query(TournamentPlace).filter(TournamentPlace.tournament_id == tournament_id).all()
+            return [obj.player for obj in tourn_objs if tourn_objs]
+
+    def give_tournament_place_price_pairs(self, tournament_id: int):
+        with Session(bind=engine) as session:
+            tourn_objs = session.query(TournamentPlace).filter(TournamentPlace.tournament_id == tournament_id).all()
+            return {tourn_obj.position: tourn_obj.place_price for tourn_obj in tourn_objs}
+
+    def swap_two_players(self):
+        pass
