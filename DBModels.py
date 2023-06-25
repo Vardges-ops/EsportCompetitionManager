@@ -12,7 +12,7 @@ class GameType(Base):
     type_name = Column(String)
     platform = Column(String)
 
-    tournaments = relationship('Game', back_populates='category_type')
+    games = relationship('Game', back_populates='category_type')
 
 
 class Game(Base):
