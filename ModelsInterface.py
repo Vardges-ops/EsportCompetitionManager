@@ -159,11 +159,15 @@ class PlayerFinder:
 
     def find_player_by_id(self, player_id: int):
         with Session(bind=engine) as session:
-            session.query(Player).get(player_id)
+            self.obj_holder = session.query(Player).get(player_id)
 
     def find_player_by_email(self, email: str):
         with Session(bind=engine) as session:
             self.obj_holder = session.query(Player).filter(Player.email == email).first()
+
+    def find_tournament_player_by_nickname(self, nickname: str):
+        with Session(bind=engine) as session:
+            self.obj_holder = session.query(Player).filter(Player.nickname == nickname).first()
 
     @staticmethod
     def find_players_by_equal_higher_rank(rank: float):
@@ -171,17 +175,34 @@ class PlayerFinder:
             return session.query(Player).filter(Player.rating >= rank).all()
 
 
-class TournamentPlace:
+class TournamentPlaceInterface:
 
-    def give_tournament_players(self, tournament_id: int) -> List[Player]:
+    @staticmethod
+    def give_tournament_players(tournament_id: int) -> List[Player]:
         with Session(bind=engine) as session:
             tourn_objs = session.query(TournamentPlace).filter(TournamentPlace.tournament_id == tournament_id).all()
             return [obj.player for obj in tourn_objs if tourn_objs]
 
-    def give_tournament_place_price_pairs(self, tournament_id: int):
+    @staticmethod
+    def give_tournamentplace_objects(tournament_id: int):
         with Session(bind=engine) as session:
             tourn_objs = session.query(TournamentPlace).filter(TournamentPlace.tournament_id == tournament_id).all()
-            return {tourn_obj.position: tourn_obj.place_price for tourn_obj in tourn_objs}
+            return tourn_objs
 
-    def swap_two_players(self):
-        pass
+    @staticmethod
+    def give_tournament_place_price_pairs(tournament_id: int):
+        tourn_objs = TournamentPlaceInterface.give_tournamentplace_objects(tournament_id)
+        return {tourn_obj.position: tourn_obj.place_price for tourn_obj in tourn_objs}
+
+    @staticmethod
+    def swap_two_players(tournament_id: int, higher_player_id: int, lower_player_id: int):
+        with Session(bind=engine) as session:
+            higher_player_obj = session.query(TournamentPlace).filter(
+                TournamentPlace.tournament_id == tournament_id,
+                TournamentPlace.player_id == higher_player_id).first()
+            lower_player_obj = session.query(TournamentPlace).filter(
+                TournamentPlace.tournament_id == tournament_id,
+                TournamentPlace.player_id == lower_player_id).first()
+
+            higher_player_obj.player_id = lower_player_id
+            lower_player_obj.player_id = higher_player_id
