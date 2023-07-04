@@ -11,6 +11,12 @@ class GameTypeInterface:
             return session.query(GameType).all()
 
     @staticmethod
+    def get_gametype_by_name(gametype_name: str) -> GameType:
+        with Session(bind=engine) as session:
+            gametype_obj = session.query(GameType).filter(GameType.type_name==gametype_name).first()
+            return gametype_obj
+
+    @staticmethod
     def add_gametype(game_type: str, platform: str):
         with Session(bind=engine) as session:
             session.add(GameType(game_type=game_type, platform=platform))
@@ -31,6 +37,11 @@ class GameInterface:
     def __init__(self):
         self.games_list = None
         self.game_match = None
+
+    @staticmethod
+    def insert_game(game_name: str, category_type_id: str):
+        with Session(bind=engine) as session:
+            session.add(Game(name=game_name, type_id=category_type_id))
 
     def get_game_by_id(self, game_id: int):
         with Session(bind=engine) as session:
